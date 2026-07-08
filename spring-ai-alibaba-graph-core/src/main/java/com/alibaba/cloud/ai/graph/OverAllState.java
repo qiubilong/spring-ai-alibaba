@@ -74,20 +74,20 @@ import static java.util.Optional.ofNullable;
  * @author disaster
  * @since 1.0.0.1
  */
-public final class OverAllState implements Serializable {
+public final class OverAllState implements Serializable { /* 状态图执行 - 全局状态 */
 	public static final Object MARK_FOR_REMOVAL = new Object();
 
 	/**
 	 * Internal map storing the actual state data. All get/set operations on state values
 	 * go through this map.
 	 */
-	private final Map<String, Object> data;
+	private final Map<String, Object> data; /* 全局数据 */
 
 	/**
 	 * Mapping of keys to their respective update strategies. Determines how values for
 	 * each key should be merged or updated.
 	 */
-	private final Map<String, KeyStrategy> keyStrategies;
+	private final Map<String, KeyStrategy> keyStrategies; /* 相同 key 合并策略  */
 
 	/**
 	 * Store instance for long-term memory storage across different executions.
@@ -270,7 +270,7 @@ public final class OverAllState implements Serializable {
 			}
 			if (partialState.get(key) == MARK_FOR_REMOVAL) {
 				this.data.remove(key);
-			} else {
+			} else {/* 更新 OverAllState data的值 - 默认追加 */
 				this.data.put(key, strategy.apply(value(key, null), partialState.get(key)));
 			}
 		});

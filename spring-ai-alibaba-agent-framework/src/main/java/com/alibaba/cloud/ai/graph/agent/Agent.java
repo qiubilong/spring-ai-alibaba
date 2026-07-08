@@ -99,7 +99,7 @@ public abstract class Agent {
 	public StateGraph getGraph() {
 		if (this.graph == null) {
 			try {
-				this.graph = initGraph();
+				this.graph = initGraph();/* 懒初始化 执行流程图  - ReActAgent  */
 			}
 			catch (GraphStateException e) {
 				throw new RuntimeException(e);
@@ -113,7 +113,7 @@ public abstract class Agent {
 			return compiledGraph;
 		}
 
-		StateGraph graph = getGraph();
+		StateGraph graph = getGraph(); /* 懒初始化 执行流程图 */
 		try {
 			if (this.compileConfig == null) {
 				this.compiledGraph = graph.compile();
@@ -251,7 +251,7 @@ public abstract class Agent {
 
 	protected Optional<OverAllState> doInvoke(Map<String, Object> input, RunnableConfig runnableConfig) {
 		CompiledGraph compiledGraph = getAndCompileGraph();
-		return compiledGraph.invoke(input, buildNonStreamConfig(runnableConfig));
+		return compiledGraph.invoke(input, buildNonStreamConfig(runnableConfig));/* 调用 执行状态图 */
 	}
 
 	protected Optional<NodeOutput> doInvokeAndGetOutput(Map<String, Object> input, RunnableConfig runnableConfig) {
@@ -266,7 +266,7 @@ public abstract class Agent {
 
 	protected RunnableConfig buildNonStreamConfig(RunnableConfig config) {
 		if (config == null) {
-			return RunnableConfig.builder().addMetadata("_stream_", false).addMetadata("_AGENT_", name).build();
+			return RunnableConfig.builder().addMetadata("_stream_", false).addMetadata("_AGENT_", name).build(); /* 默认非流式调用 */
 		}
 		return RunnableConfig.builder(config).addMetadata("_stream_", false).addMetadata("_AGENT_", name).build();
 	}
@@ -287,7 +287,7 @@ public abstract class Agent {
 		}
 
 		Map<String, Object> inputs = new HashMap<>();
-		inputs.put("messages", messages);
+		inputs.put("messages", messages); /* 对话历史 */
 
 		UserMessage lastUserMessage = null;
 		for (int i = messages.size() - 1; i >= 0; i--) {
@@ -298,7 +298,7 @@ public abstract class Agent {
 			}
 		}
 		if (lastUserMessage != null) {
-			inputs.put("input", lastUserMessage.getText());
+			inputs.put("input", lastUserMessage.getText()); /* 用户输出 */
 		}
 		return inputs;
 	}

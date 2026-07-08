@@ -55,7 +55,7 @@ import reactor.core.publisher.Flux;
 import static com.alibaba.cloud.ai.graph.checkpoint.BaseCheckpointSaver.THREAD_ID_DEFAULT;
 
 public class AgentLlmNode implements NodeActionWithConfig {
-	public static final String MODEL_NODE_NAME = "model";
+	public static final String MODEL_NODE_NAME = "model";   /* 大模型调用 节点  */
 	private static final Logger logger = LoggerFactory.getLogger(AgentLlmNode.class);
 	public static final String MODEL_ITERATION_KEY = "_MODEL_ITERATION_";
 
@@ -142,7 +142,7 @@ public class AgentLlmNode implements NodeActionWithConfig {
 			throw new IllegalArgumentException("Either 'instruction' or 'includeContents' must be set for Agent.");
 		}
 		@SuppressWarnings("unchecked")
-		List<Message> messages = (List<Message>) state.value("messages").get();
+		List<Message> messages = (List<Message>) state.value("messages").get(); /* 获取工作流上下文中的 对话消息 */
 		augmentUserMessage(messages, outputSchema);
 		renderTemplatedUserMessage(messages, state.data());
 
@@ -158,7 +158,7 @@ public class AgentLlmNode implements NodeActionWithConfig {
 
 		// add streaming support
 		boolean stream = config.metadata("_stream_", new TypeRef<Boolean>(){}).orElse(true);
-		if (stream) {
+		if (stream) { /* 流式调用大模型 */
 			// Create base handler that actually calls the model with streaming
 			ModelCallHandler baseHandler = request -> {
 				try {
@@ -198,7 +198,7 @@ public class AgentLlmNode implements NodeActionWithConfig {
 
 			// Execute the chained handler
 			ModelResponse modelResponse = chainedHandler.call(modelRequest);
-			return Map.of(StringUtils.hasLength(this.outputKey) ? this.outputKey : "messages", modelResponse.getMessage());
+			return Map.of(StringUtils.hasLength(this.outputKey) ? this.outputKey : "messages", modelResponse.getMessage());/* 更新对话消息  */
 		} else {
 			// Create base handler that actually calls the model
 			ModelCallHandler baseHandler = request -> {
@@ -208,7 +208,7 @@ public class AgentLlmNode implements NodeActionWithConfig {
 						logger.info("[ThreadId {}] Agent {} reasoning round {} with system prompt: {}.", config.threadId().orElse(THREAD_ID_DEFAULT), agentName, iterations.get(), systemPrompt);
 					}
 
-					ChatResponse response = buildChatClientRequestSpec(request).call().chatResponse();
+					ChatResponse response = buildChatClientRequestSpec(request).call().chatResponse(); /* 直接调用大模型 */
 
 					AssistantMessage responseMessage = new AssistantMessage("Empty response from model for unknown reason");
 					if (response != null && response.getResult() != null) {
@@ -235,14 +235,14 @@ public class AgentLlmNode implements NodeActionWithConfig {
 			}
 
 			// Execute the chained handler
-			ModelResponse modelResponse = chainedHandler.call(modelRequest);
+			ModelResponse modelResponse = chainedHandler.call(modelRequest); /* 执行调用 大模型 */
 			Usage tokenUsage = modelResponse.getChatResponse() != null ? modelResponse.getChatResponse().getMetadata()
 					.getUsage() : new EmptyUsage();
 
 			Map<String, Object> updatedState = new HashMap<>();
 			updatedState.put("_TOKEN_USAGE_", tokenUsage);
-			updatedState.put("messages", modelResponse.getMessage());
-			if (StringUtils.hasLength(this.outputKey)) {
+			updatedState.put("messages", modelResponse.getMessage()); /* 更新对话消息  */
+			if (StringUtils.hasLength(this.outputKey)) { /* 节点输出的key */
 				updatedState.put(this.outputKey, modelResponse.getMessage());
 			}
 

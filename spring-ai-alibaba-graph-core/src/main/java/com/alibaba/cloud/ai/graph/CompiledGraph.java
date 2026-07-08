@@ -467,7 +467,7 @@ public class CompiledGraph {
 	 * @return a Flux stream of NodeOutput
 	 */
 	public Flux<NodeOutput> stream(Map<String, Object> inputs, RunnableConfig config) {
-		return streamFromInitialNode(stateCreate(inputs), config);
+		return streamFromInitialNode(stateCreate(inputs), config); /* 从起始节点执行 状态图 */
 	}
 
 	/**
@@ -584,7 +584,7 @@ public class CompiledGraph {
 		// and provided input data.
 		return OverAllStateBuilder.builder()
 			.withKeyStrategies(stateGraph.getKeyStrategyFactory().apply())
-			.withData(inputs)
+			.withData(inputs) /* 初始数据 */
 			.withStore(compileConfig.getStore())
 			.build();
 	}

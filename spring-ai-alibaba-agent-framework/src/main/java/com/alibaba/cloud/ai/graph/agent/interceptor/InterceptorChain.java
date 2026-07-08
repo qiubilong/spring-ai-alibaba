@@ -48,7 +48,7 @@ public class InterceptorChain {
 
 		// Wrap from last to first (right-to-left composition)
 		// This ensures first interceptor is outermost
-		for (int i = interceptors.size() - 1; i >= 0; i--) {
+		for (int i = interceptors.size() - 1; i >= 0; i--) { /* 构建 大模型调用 拦截器 */
 			ModelInterceptor interceptor = interceptors.get(i);
 			ModelCallHandler nextHandler = current;
 

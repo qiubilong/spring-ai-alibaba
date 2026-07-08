@@ -57,9 +57,9 @@ public class DefaultBuilder extends Builder {
 				clientBuilder.defaultOptions(chatOptions);
 			}
 
-			chatClient = clientBuilder.build();
+			chatClient = clientBuilder.build(); /* 构建 对话客户端 */
 		}
-
+        /* model -  大模型调用 节点 */
 		AgentLlmNode.Builder llmNodeBuilder = AgentLlmNode.builder().agentName(this.name).chatClient(chatClient);
 
 		if (outputKey != null && !outputKey.isEmpty()) {
@@ -145,7 +145,7 @@ public class DefaultBuilder extends Builder {
 		if (enableLogging) {
 			toolBuilder.enableActingLog(true);
 		}
-
+        /* 工具调用节点 */
 		toolNode = toolBuilder.build();
 
 		return new ReactAgent(llmNode, toolNode, buildConfig(), this);

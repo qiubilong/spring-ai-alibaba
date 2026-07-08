@@ -34,7 +34,7 @@ import java.util.Optional;
 
 import static java.util.Collections.unmodifiableList;
 
-public class AppendStrategy implements KeyStrategy {
+public class AppendStrategy implements KeyStrategy { /* 状态更新策略 */
 
 	private static final Logger log = LoggerFactory.getLogger(AppendStrategy.class);
 
@@ -46,7 +46,7 @@ public class AppendStrategy implements KeyStrategy {
 	public AppendStrategy(boolean allowDuplicate) {
 		this.allowDuplicate = allowDuplicate;
 	}
-
+    /* 当某个状态 key 收到新值时，不覆盖旧值，而是把新值追加到已有集合/列表后面 */
 	@Override
 	public Object apply(Object oldValue, Object newValue) {
 		if (newValue == null) {
@@ -67,7 +67,7 @@ public class AppendStrategy implements KeyStrategy {
 
 		List<Object> list = null;
 		if (newValue instanceof List) {
-			list = new ArrayList<>((List<?>) newValue);
+			list = new ArrayList<>((List<?>) newValue); /* 新值 */
 		}
 		else if (newValue.getClass().isArray()) {
 			list = Arrays.asList((Object[]) newValue);
@@ -77,7 +77,7 @@ public class AppendStrategy implements KeyStrategy {
 		}
 
 		if (oldValueIsList) {
-			List<Object> oldList = (List<Object>) oldValue;
+			List<Object> oldList = (List<Object>) oldValue; /* 旧值 --> 追加 新值 */
 			if (list != null) {
 				if (list.isEmpty()) {
 					return oldValue;

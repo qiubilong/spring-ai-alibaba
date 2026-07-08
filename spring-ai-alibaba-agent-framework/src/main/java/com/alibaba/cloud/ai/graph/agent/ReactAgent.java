@@ -78,14 +78,14 @@ import static com.alibaba.cloud.ai.graph.action.AsyncNodeActionWithConfig.node_a
 import static java.lang.String.format;
 
 
-public class ReactAgent extends BaseAgent {
+public class ReactAgent extends BaseAgent { /* 循环调用 智能体 */
 	Logger logger = LoggerFactory.getLogger(ReactAgent.class);
 
-	private final AgentLlmNode llmNode;
+	private final AgentLlmNode llmNode;    /* 大模型调用 - 节点 */
 
-	private final AgentToolNode toolNode;
+	private final AgentToolNode toolNode; /* 工具调用 - 节点 */
 
-	private CompiledGraph compiledGraph;
+	private CompiledGraph compiledGraph;  /* 执行状态图 */
 
 	private List<? extends Hook> hooks;
 
@@ -128,7 +128,7 @@ public class ReactAgent extends BaseAgent {
 	}
 
 	public AssistantMessage call(String message) throws GraphRunnerException {
-		return doMessageInvoke(message, null);
+		return doMessageInvoke(message, null); /* 同步调用 */
 	}
 
 	public AssistantMessage call(String message, RunnableConfig config) throws GraphRunnerException {
@@ -152,8 +152,8 @@ public class ReactAgent extends BaseAgent {
 	}
 
 	private AssistantMessage doMessageInvoke(Object message, RunnableConfig config) throws GraphRunnerException {
-		Map<String, Object> inputs= buildMessageInput(message);
-		Optional<OverAllState> state = doInvoke(inputs, config);
+		Map<String, Object> inputs= buildMessageInput(message);/* 对话消息 */
+		Optional<OverAllState> state = doInvoke(inputs, config); /* 调用 执行状态图 */
 
 		if (StringUtils.hasLength(outputKey)) {
 			return state.flatMap(s -> s.value(outputKey))
@@ -203,12 +203,12 @@ public class ReactAgent extends BaseAgent {
 			// set agent name to every hook node.
 			hook.setAgentName(this.name);
 		}
-
+        /* 创建 - 执行流程图 */
 		// Create graph
-		StateGraph graph = new StateGraph(name, buildMessagesKeyStrategyFactory(hooks));
+		StateGraph graph = new StateGraph(name, buildMessagesKeyStrategyFactory(hooks)); /* keyStrategyHashMap.put("messages", new AppendStrategy()) */
 
-		graph.addNode("model", node_async(this.llmNode));
-		graph.addNode("tool", node_async(this.toolNode));
+		graph.addNode("model", node_async(this.llmNode)); /* 大模型调用 节点 */
+		graph.addNode("tool", node_async(this.toolNode)); /* 工具调用 - 节点  */
 
 		// some hooks may need tools so they can do some initialization/cleanup on start/end of agent loop
 		setupToolsForHooks(hooks, toolNode);
@@ -252,14 +252,14 @@ public class ReactAgent extends BaseAgent {
 		}
 
 		// Determine node flow
-		String entryNode = determineEntryNode(beforeAgentHooks, beforeModelHooks);
+		String entryNode = determineEntryNode(beforeAgentHooks, beforeModelHooks);/* 执行状态图 - 首节点 - 默认 model */
 		String loopEntryNode = determineLoopEntryNode(beforeModelHooks);
 		String loopExitNode = determineLoopExitNode(afterModelHooks);
-		String exitNode = determineExitNode(afterAgentHooks);
+		String exitNode = determineExitNode(afterAgentHooks); /* 执行状态图 - 未节点 - 默认 StateGraph.END */
 
 		// Set up edges
 		graph.addEdge(START, entryNode);
-		setupHookEdges(graph, beforeAgentHooks, afterAgentHooks, beforeModelHooks, afterModelHooks,
+		setupHookEdges(graph, beforeAgentHooks, afterAgentHooks, beforeModelHooks, afterModelHooks, /* 添加 执行状态图 条件边 */
 				entryNode, loopEntryNode, loopExitNode, exitNode, true, this);
 		return graph;
 	}
@@ -421,7 +421,7 @@ public class ReactAgent extends BaseAgent {
 		}
 
 		// Add tool routing if tools exist
-		if (hasTools) {
+		if (hasTools) { /* 添加工具调用 节点 */
 			setupToolRouting(graph, loopExitNode, loopEntryNode, exitNode, agentInstance);
 		} else if (!loopExitNode.equals("model")) {
 			// No tools but have after_model - connect to exit
@@ -547,7 +547,7 @@ public class ReactAgent extends BaseAgent {
 			String loopEntryNode,
 			String exitNode,
 			ReactAgent agentInstance) throws GraphStateException {
-
+        /* 执行工具 - 条件边 */  
 		// Model to tools routing
 		graph.addConditionalEdges(loopExitNode, edge_async(agentInstance.makeModelToTools(loopEntryNode, exitNode)), Map.of("tool", "tool", exitNode, exitNode, loopEntryNode, loopEntryNode));
 
@@ -573,7 +573,7 @@ public class ReactAgent extends BaseAgent {
 			if (outputKey != null && !outputKey.isEmpty()) {
 				keyStrategyHashMap.put(outputKey, outputKeyStrategy == null ? new ReplaceStrategy() : outputKeyStrategy);
 			}
-			keyStrategyHashMap.put("messages", new AppendStrategy());
+			keyStrategyHashMap.put("messages", new AppendStrategy());/* 追加方式 添加保存Agent 对话消息 */
 
 			// Iterate through hooks and collect their key strategies
 			if (hooks != null) {
@@ -602,7 +602,7 @@ public class ReactAgent extends BaseAgent {
 			if (lastMessage instanceof AssistantMessage assistantMessage) {
 				// 2. If last message is AssistantMessage
 				if (assistantMessage.hasToolCalls()) {
-					return "tool";
+					return "tool"; /* 需要执行工具 */
 				} else {
 					return endDestination;
 				}

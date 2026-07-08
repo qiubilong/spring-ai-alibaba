@@ -111,11 +111,11 @@ public class NodeExecutor extends BaseGraphExecutor {
 
 			context.doListeners(NODE_BEFORE, null);
 
-			CompletableFuture<Map<String, Object>> future = action.apply(context.getOverallState(),
+			CompletableFuture<Map<String, Object>> future = action.apply(context.getOverallState(), /* 调用节点 */
 					context.getConfig());
 
 			return Mono.fromFuture(future)
-					.flatMapMany(updateState -> handleActionResult(context, updateState, resultValue))
+					.flatMapMany(updateState -> handleActionResult(context, updateState, resultValue)) /* 处理节点 返回结果 */
 					.onErrorResume(error -> {
 						context.doListeners(ERROR, new Exception(error));
 						return Flux.just(GraphResponse.error(error));
@@ -155,7 +155,7 @@ public class NodeExecutor extends BaseGraphExecutor {
 				return handleEmbeddedFlux(context, embedFlux.get(), updateState, resultValue);
 			}
 
-			context.mergeIntoCurrentState(updateState);
+			context.mergeIntoCurrentState(updateState);/* 更新 OverAllState data的值 */
 
 			if (context.getCompiledGraph().compileConfig.interruptBeforeEdge()
 					&& context.getCompiledGraph().compileConfig.interruptsAfter()

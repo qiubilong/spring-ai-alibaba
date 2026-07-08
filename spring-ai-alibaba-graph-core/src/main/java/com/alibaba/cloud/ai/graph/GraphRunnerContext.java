@@ -336,7 +336,7 @@ public class GraphRunnerContext {
 		// Create a new map and filter out ChatResponse entries
 		Map<String, Object> filteredState = findTokenUsageInDeltaState(updateState);
 
-		this.overallState.updateState(filteredState);
+		this.overallState.updateState(filteredState);/* 更新 OverAllState data的值 */
 	}
 
 	/**
