@@ -51,19 +51,19 @@ public interface TokenCounter {
 	 * @param charsPerToken The average number of characters per token
 	 * @return A token counter using the specified ratio
 	 */
-	static TokenCounter approximateMsgCounter(int charsPerToken) {
+	static TokenCounter approximateMsgCounter(int charsPerToken) { /* 估算 token  -- getText().length() / 4      */
 		return messages -> {
 			int total = 0;
 			for (Message msg : messages) {
 				// Handle ToolResponseMessage - count tokens in tool responses
-				if (msg instanceof ToolResponseMessage toolResponseMessage) {
+				if (msg instanceof ToolResponseMessage toolResponseMessage) { /* 工具结果 */
 					for (ToolResponseMessage.ToolResponse response : toolResponseMessage.getResponses()) {
 						// Count tokens in tool response data
 						total += response.responseData().length() / charsPerToken;
 					}
 				}
 				// Handle AssistantMessage - count tokens in tool calls
-				else if (msg instanceof AssistantMessage assistantMessage) {
+				else if (msg instanceof AssistantMessage assistantMessage) {/* 大模型响应 */
 					// Count tokens in regular text content
 					if (msg.getText() != null) {
 						total += msg.getText().length() / charsPerToken;

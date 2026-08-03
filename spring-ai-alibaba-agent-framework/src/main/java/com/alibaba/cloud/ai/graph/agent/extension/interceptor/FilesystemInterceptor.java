@@ -71,7 +71,7 @@ import java.util.regex.Pattern;
  * // Use both interceptors in your agent
  * </pre>
  */
-public class FilesystemInterceptor extends ModelInterceptor {
+public class FilesystemInterceptor extends ModelInterceptor { /* 文件操作工具 */
 
 	// Constants
 	private static final String EMPTY_CONTENT_WARNING = "System reminder: File exists but has empty contents";
@@ -93,9 +93,9 @@ public class FilesystemInterceptor extends ModelInterceptor {
 			- grep: search for text within files
 			""";
 
-	private final List<ToolCallback> tools;
+	private final List<ToolCallback> tools; /* 文件操作工具 */
 	private final String systemPrompt;
-	private final boolean readOnly;
+	private final boolean readOnly;   /* 只读 */
 	private final Map<String, String> customToolDescriptions;
 	// Pattern for directory traversal detection
 	private static final Pattern TRAVERSAL_PATTERN = Pattern.compile("\\.\\.|~");
@@ -110,25 +110,25 @@ public class FilesystemInterceptor extends ModelInterceptor {
 		// Create filesystem tools using factory methods with custom or default descriptions
 		List<ToolCallback> toolList = new ArrayList<>();
 		toolList.add(ListFilesTool.createListFilesToolCallback(
-			customToolDescriptions.getOrDefault("ls", ListFilesTool.DESCRIPTION)
+			customToolDescriptions.getOrDefault("ls", ListFilesTool.DESCRIPTION)             /* ls 工具 */
 		));
 		toolList.add(ReadFileTool.createReadFileToolCallback(
-			customToolDescriptions.getOrDefault("read_file", ReadFileTool.DESCRIPTION)
+			customToolDescriptions.getOrDefault("read_file", ReadFileTool.DESCRIPTION)       /* 读取文件 */
 		));
 
 		if (!readOnly) {
 			toolList.add(WriteFileTool.createWriteFileToolCallback(
-				customToolDescriptions.getOrDefault("write_file", WriteFileTool.DESCRIPTION)
+				customToolDescriptions.getOrDefault("write_file", WriteFileTool.DESCRIPTION) /* 写文件 */
 			));
 			toolList.add(EditFileTool.createEditFileToolCallback(
-				customToolDescriptions.getOrDefault("edit_file", EditFileTool.DESCRIPTION)
+				customToolDescriptions.getOrDefault("edit_file", EditFileTool.DESCRIPTION)   /* 编辑文件 */
 			));
 		}
 
 		toolList.add(GlobTool.createGlobToolCallback(
 			customToolDescriptions.getOrDefault("glob", GlobTool.DESCRIPTION)
 		));
-		toolList.add(GrepTool.createGrepToolCallback(
+		toolList.add(GrepTool.createGrepToolCallback(                                              /* 文件查找 */  
 			customToolDescriptions.getOrDefault("grep", GrepTool.DESCRIPTION)
 		));
 

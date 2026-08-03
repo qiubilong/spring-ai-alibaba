@@ -28,7 +28,7 @@ import java.util.function.BiFunction;
 /**
  * Tool for listing files in a directory.
  */
-public class ListFilesTool implements BiFunction<String, ToolContext, String> {
+public class ListFilesTool implements BiFunction<String, ToolContext, String> { /* ls 查看文件目录 */
 
 	public static final String DESCRIPTION = """
 			Lists all files in the filesystem, filtering by directory.

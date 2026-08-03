@@ -89,10 +89,10 @@ public class DefaultBuilder extends Builder {
 
 			for (Interceptor interceptor : interceptors) {
 				if (interceptor instanceof ModelInterceptor) {
-					modelInterceptors.add((ModelInterceptor) interceptor);
+					modelInterceptors.add((ModelInterceptor) interceptor); /* 大模型调用 - 拦截器 */
 				}
 				if (interceptor instanceof ToolInterceptor) {
-					toolInterceptors.add((ToolInterceptor) interceptor);
+					toolInterceptors.add((ToolInterceptor) interceptor); /* 工具调用 - 拦截器 */
 				}
 			}
 		}
@@ -109,7 +109,7 @@ public class DefaultBuilder extends Builder {
 
 		// Extract interceptor tools
 		List<ToolCallback> interceptorTools = new ArrayList<>();
-		if (CollectionUtils.isNotEmpty(modelInterceptors)) {
+		if (CollectionUtils.isNotEmpty(modelInterceptors)) {  /* 收集 【大模型】拦截器中的 工具 */
 			interceptorTools = modelInterceptors.stream()
 				.flatMap(interceptor -> interceptor.getTools().stream())
 				.toList();
@@ -129,7 +129,7 @@ public class DefaultBuilder extends Builder {
 			llmNodeBuilder.enableReasoningLog(true);
 		}
 
-		AgentLlmNode llmNode = llmNodeBuilder.build();
+		AgentLlmNode llmNode = llmNodeBuilder.build(); /* 【大模型调用】节点 */
 
 		// Setup tool node with all available tools
 		AgentToolNode toolNode;
@@ -145,7 +145,7 @@ public class DefaultBuilder extends Builder {
 		if (enableLogging) {
 			toolBuilder.enableActingLog(true);
 		}
-        /* 工具调用节点 */
+        /* 【工具调用】节点 */
 		toolNode = toolBuilder.build();
 
 		return new ReactAgent(llmNode, toolNode, buildConfig(), this);

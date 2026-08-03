@@ -34,7 +34,7 @@ import static com.alibaba.cloud.ai.graph.agent.tools.ToolContextConstants.AGENT_
  * This tool allows agents to create, update, and track task lists.
  *
  */
-public class WriteTodosTool implements BiFunction<WriteTodosTool.Request, ToolContext, WriteTodosTool.Response> {
+public class WriteTodosTool implements BiFunction<WriteTodosTool.Request, ToolContext, WriteTodosTool.Response> { /* 待办列表工具 */
 	public static final String DEFAULT_TOOL_DESCRIPTION = """
 			Use this tool to create and manage a structured task list for your current work session. This helps you track progress, organize complex tasks, and demonstrate thoroughness to the user.
 			
@@ -107,7 +107,7 @@ public class WriteTodosTool implements BiFunction<WriteTodosTool.Request, ToolCo
 		Map<String, Object> extraState = (Map<String, Object>)contextData.get(AGENT_STATE_FOR_UPDATE_CONTEXT_KEY);
 
 		// Update the state with todos
-		extraState.put("todos", request.todos);
+		extraState.put("todos", request.todos); /* 更新工具【待办列表】 */
 
 		// Return the tool response message
 		return new Response("Updated todo list to " + request.todos);

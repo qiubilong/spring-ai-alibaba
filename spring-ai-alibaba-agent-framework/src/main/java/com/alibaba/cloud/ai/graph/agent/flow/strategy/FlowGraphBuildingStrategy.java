@@ -138,11 +138,11 @@ public interface FlowGraphBuildingStrategy {
 			}
 		}
 	}
-
+	/* ## 将【子agent】封装为 【工作流节点】 */
 	static void addSubAgentNode(Agent subAgent, StateGraph newGraph) throws GraphStateException {
 		if (subAgent instanceof FlowAgent flowAgent) {
 			newGraph.addNode(flowAgent.name(), flowAgent.asStateGraph());
-		} else if (subAgent instanceof BaseAgent baseAgent) {
+		} else if (subAgent instanceof BaseAgent baseAgent) { /* 其实就是 ReactAgent */
 			newGraph.addNode(baseAgent.name(), baseAgent.asNode(baseAgent.isIncludeContents(), baseAgent.isReturnReasoningContents(), baseAgent.getOutputKey()));
 		} else {
 			throw new IllegalArgumentException(subAgent.getClass().getName() + " only supports FlowAgent and BaseAgent types");

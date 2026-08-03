@@ -38,7 +38,7 @@ public abstract class FlowAgentBuilder<T extends FlowAgent, B extends FlowAgentB
 
 	public CompileConfig compileConfig;
 
-	public List<Agent> subAgents;
+	public List<Agent> subAgents; /* agent列表 */
 
 	/**
 	 * Sets the agent name.

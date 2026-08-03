@@ -45,12 +45,12 @@ public class GraphRunner {
 		this.mainGraphExecutor = new MainGraphExecutor();
 	}
 
-	public Flux<GraphResponse<NodeOutput>> run(OverAllState initialState) {
+	public Flux<GraphResponse<NodeOutput>> run(OverAllState initialState) { 
 		return Flux.defer(() -> {
 			try {
 				GraphRunnerContext context = new GraphRunnerContext(initialState, config, compiledGraph);
 				// Delegate to the main execution handler - demonstrates polymorphism
-				return mainGraphExecutor.execute(context, resultValue);
+				return mainGraphExecutor.execute(context, resultValue); /* 工作流执行 引擎 */
 			}
 			catch (Exception e) {
 				return Flux.error(e);

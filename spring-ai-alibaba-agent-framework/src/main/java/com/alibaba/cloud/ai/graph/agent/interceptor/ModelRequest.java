@@ -30,9 +30,9 @@ import java.util.Map;
 public class ModelRequest {
 	private final SystemMessage systemMessage;
 	private final Map<String, Object> context;
-	private final List<Message> messages;
-	private final ChatOptions options;
-	private final List<String> tools;
+	private final List<Message> messages;  /* 最终的消息列表（用户输入、模型返回、工具结果） */
+	private final ChatOptions options;     /* ToolCallingChatOptions */
+	private final List<String> tools;      /* 最终选择的工具列表 */
 
 	public ModelRequest(SystemMessage systemMessage, List<Message> messages, ChatOptions options, List<String> tools, Map<String, Object> context) {
 		this.systemMessage = systemMessage;

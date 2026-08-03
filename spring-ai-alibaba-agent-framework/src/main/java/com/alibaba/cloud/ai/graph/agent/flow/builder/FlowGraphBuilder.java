@@ -44,7 +44,7 @@ public class FlowGraphBuilder {
 	public static StateGraph buildGraph(String strategyType, FlowGraphConfig config) throws GraphStateException {
 		FlowGraphBuildingStrategy strategy = FlowGraphBuildingStrategyRegistry.getInstance().getStrategy(strategyType);
 		strategy.validateConfig(config);
-		return strategy.buildGraph(config);
+		return strategy.buildGraph(config); /* ## 构建串行agent =  SequentialGraphBuildingStrategy */
 	}
 
 	/**

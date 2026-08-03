@@ -48,14 +48,14 @@ import org.slf4j.LoggerFactory;
  *     .clearAtLeast(1000)
  *     .build();
  */
-public class ContextEditingInterceptor extends ModelInterceptor {
+public class ContextEditingInterceptor extends ModelInterceptor { /* 将【工具消息内容】替换为[cleared]，减少上下文，属于提示词工程优化 */
 
 	private static final Logger log = LoggerFactory.getLogger(ContextEditingInterceptor.class);
 	private static final String DEFAULT_PLACEHOLDER = "[cleared]";
 
-	private final int trigger;
-	private final int clearAtLeast;
-	private final int keep;
+	private final int trigger;      /* 上下文 总token 触发阈值 */
+	private final int clearAtLeast; /* 清除token上限 */
+	private final int keep;        /* 保留多少条 */
 	private final boolean clearToolInputs;
 	private final Set<String> excludeTools;
 	private final String placeholder;
@@ -81,7 +81,7 @@ public class ContextEditingInterceptor extends ModelInterceptor {
 	public ModelResponse interceptModel(ModelRequest request, ModelCallHandler handler) {
 		List<Message> messages = new ArrayList<>(request.getMessages());
 
-		int tokens = tokenCounter.countTokens(messages);
+		int tokens = tokenCounter.countTokens(messages); /* 估算token用量  -- getText().length() / 4      */
 
 		if (tokens <= trigger) {
 			// Token count is below trigger, no editing needed
@@ -103,7 +103,7 @@ public class ContextEditingInterceptor extends ModelInterceptor {
 
 		// Clear tool results until we meet the clearAtLeast threshold
 		for (ClearableToolMessage candidate : candidates) {
-			if (clearedTokens >= clearAtLeast) {
+			if (clearedTokens >= clearAtLeast) { /* 清除token上限 */
 				break;
 			}
 
@@ -122,7 +122,7 @@ public class ContextEditingInterceptor extends ModelInterceptor {
 					List<ToolResponseMessage.ToolResponse> clearedResponses = new ArrayList<>();
 
 					for (ToolResponseMessage.ToolResponse resp : toolMsg.getResponses()) {
-						clearedResponses.add(new ToolResponseMessage.ToolResponse(
+						clearedResponses.add(new ToolResponseMessage.ToolResponse( /* 将【工具】结果内容 替换为 [cleared] */
 								resp.id(), resp.name(), placeholder));
 					}
 
@@ -134,7 +134,7 @@ public class ContextEditingInterceptor extends ModelInterceptor {
 
 					// Clear tool call arguments by replacing with placeholder
 					if (assistantMsg.getToolCalls() != null) {
-						for (AssistantMessage.ToolCall toolCall : assistantMsg.getToolCalls()) {
+						for (AssistantMessage.ToolCall toolCall : assistantMsg.getToolCalls()) { /* 将【工具】调用参数 替换为 [cleared] */
 							clearedToolCalls.add(new AssistantMessage.ToolCall(
 									toolCall.id(), toolCall.type(), toolCall.name(), placeholder));
 						}
@@ -159,7 +159,7 @@ public class ContextEditingInterceptor extends ModelInterceptor {
 					clearedTokens, indicesToClear.size());
 
 			// Create a new request with updated messages
-			ModelRequest updatedRequest = ModelRequest.builder(request)
+			ModelRequest updatedRequest = ModelRequest.builder(request)  /* 构建新的 大模型请求 */
 					.messages(updatedMessages)
 					.build();
 
@@ -169,14 +169,14 @@ public class ContextEditingInterceptor extends ModelInterceptor {
 		return handler.call(request);
 	}
 
-	private List<ClearableToolMessage> findClearableCandidates(List<Message> messages) {
+	private List<ClearableToolMessage> findClearableCandidates(List<Message> messages) { /* 筛选候选 消息 */
 		List<ClearableToolMessage> candidates = new ArrayList<>();
 
 		// Find all tool messages
 		for (int i = 0; i < messages.size(); i++) {
 			Message msg = messages.get(i);
 
-			if (msg instanceof ToolResponseMessage toolMsg) {
+			if (msg instanceof ToolResponseMessage toolMsg) { /* 工具消息 */
 
 				// Check if already cleared
 				boolean alreadyCleared = false;
@@ -193,7 +193,7 @@ public class ContextEditingInterceptor extends ModelInterceptor {
 
 				// Check if tool is excluded
 				boolean excluded = false;
-				for (ToolResponseMessage.ToolResponse resp : toolMsg.getResponses()) {
+				for (ToolResponseMessage.ToolResponse resp : toolMsg.getResponses()) { /* 工具结果 */
 					if (excludeTools.contains(resp.name())) {
 						excluded = true;
 						break;
@@ -229,7 +229,7 @@ public class ContextEditingInterceptor extends ModelInterceptor {
 
 				// Check if tool is excluded
 				boolean excluded = false;
-				for (AssistantMessage.ToolCall toolCall : assistantMsg.getToolCalls()) {
+				for (AssistantMessage.ToolCall toolCall : assistantMsg.getToolCalls()) { /* 大模型 将要 执行工具 */
 					if (excludeTools.contains(toolCall.name())) {
 						excluded = true;
 						break;
@@ -247,7 +247,7 @@ public class ContextEditingInterceptor extends ModelInterceptor {
 
 		// Sort oldest first, exclude the most recent 'keep' messages
 		if (candidates.size() > keep) {
-			candidates = candidates.subList(0, candidates.size() - keep);
+			candidates = candidates.subList(0, candidates.size() - keep); /* 保留多少条 */
 		}
 		else {
 			candidates.clear();

@@ -54,8 +54,8 @@ import reactor.core.publisher.Flux;
 
 import static com.alibaba.cloud.ai.graph.checkpoint.BaseCheckpointSaver.THREAD_ID_DEFAULT;
 
-public class AgentLlmNode implements NodeActionWithConfig {
-	public static final String MODEL_NODE_NAME = "model";   /* 大模型调用 节点  */
+public class AgentLlmNode implements NodeActionWithConfig { /* 大模型调用 节点  */
+	public static final String MODEL_NODE_NAME = "model";
 	private static final Logger logger = LoggerFactory.getLogger(AgentLlmNode.class);
 	public static final String MODEL_ITERATION_KEY = "_MODEL_ITERATION_";
 
@@ -63,9 +63,9 @@ public class AgentLlmNode implements NodeActionWithConfig {
 
 	private List<Advisor> advisors = new ArrayList<>();
 
-	private List<ToolCallback> toolCallbacks = new ArrayList<>();
+	private List<ToolCallback> toolCallbacks = new ArrayList<>();         /* 所有的 工具列表 */
 
-	private List<ModelInterceptor> modelInterceptors = new ArrayList<>();
+	private List<ModelInterceptor> modelInterceptors = new ArrayList<>(); /* 【大模型调用】拦截器 */
 
 	private String outputKey;
 
@@ -142,7 +142,7 @@ public class AgentLlmNode implements NodeActionWithConfig {
 			throw new IllegalArgumentException("Either 'instruction' or 'includeContents' must be set for Agent.");
 		}
 		@SuppressWarnings("unchecked")
-		List<Message> messages = (List<Message>) state.value("messages").get(); /* 获取工作流上下文中的 对话消息 */
+		List<Message> messages = (List<Message>) state.value("messages").get(); /* 获取工作流上下文中的 聊天消息 */
 		augmentUserMessage(messages, outputSchema);
 		renderTemplatedUserMessage(messages, state.data());
 
@@ -198,7 +198,7 @@ public class AgentLlmNode implements NodeActionWithConfig {
 
 			// Execute the chained handler
 			ModelResponse modelResponse = chainedHandler.call(modelRequest);
-			return Map.of(StringUtils.hasLength(this.outputKey) ? this.outputKey : "messages", modelResponse.getMessage());/* 更新对话消息  */
+			return Map.of(StringUtils.hasLength(this.outputKey) ? this.outputKey : "messages", modelResponse.getMessage());/* 更新【聊天消息】  */
 		} else {
 			// Create base handler that actually calls the model
 			ModelCallHandler baseHandler = request -> {
@@ -227,7 +227,7 @@ public class AgentLlmNode implements NodeActionWithConfig {
 			};
 
 			// Chain interceptors if any
-			ModelCallHandler chainedHandler = InterceptorChain.chainModelInterceptors(
+			ModelCallHandler chainedHandler = InterceptorChain.chainModelInterceptors( /* 构建 【大模型拦截器】执行链 */
 					modelInterceptors, baseHandler);
 
 			if (enableReasoningLog) {
@@ -241,7 +241,7 @@ public class AgentLlmNode implements NodeActionWithConfig {
 
 			Map<String, Object> updatedState = new HashMap<>();
 			updatedState.put("_TOKEN_USAGE_", tokenUsage);
-			updatedState.put("messages", modelResponse.getMessage()); /* 更新对话消息  */
+			updatedState.put("messages", modelResponse.getMessage()); /* 更新【聊天消息】  */
 			if (StringUtils.hasLength(this.outputKey)) { /* 节点输出的key */
 				updatedState.put(this.outputKey, modelResponse.getMessage());
 			}
@@ -331,7 +331,7 @@ public class AgentLlmNode implements NodeActionWithConfig {
 	 */
 	private List<ToolCallback> filterToolCallbacks(ModelRequest modelRequest) {
 		if (modelRequest == null || modelRequest.getTools() == null || modelRequest.getTools().isEmpty()) {
-			return toolCallbacks;
+			return toolCallbacks; /* 默认返回全部工具列表 */
 		}
 
 		List<String> requestedTools = modelRequest.getTools();
@@ -343,9 +343,9 @@ public class AgentLlmNode implements NodeActionWithConfig {
 	private ChatClient.ChatClientRequestSpec buildChatClientRequestSpec(ModelRequest modelRequest) {
 		List<Message> messages = appendSystemPromptIfNeeded(modelRequest);
 
-		List<ToolCallback> filteredToolCallbacks = filterToolCallbacks(modelRequest);
+		List<ToolCallback> filteredToolCallbacks = filterToolCallbacks(modelRequest); /* 过滤工具 */
 		this.toolCallingChatOptions = ToolCallingChatOptions.builder()
-				.toolCallbacks(filteredToolCallbacks)
+				.toolCallbacks(filteredToolCallbacks) /* 工具选项 */
 				.internalToolExecutionEnabled(false)
 				.build();
 

@@ -21,7 +21,7 @@ import com.alibaba.cloud.ai.graph.RunnableConfig;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-public abstract class ModelHook implements Hook {
+public abstract class ModelHook implements Hook { /* 大模型调用 - 钩子 */
 
     private String agentName;
 

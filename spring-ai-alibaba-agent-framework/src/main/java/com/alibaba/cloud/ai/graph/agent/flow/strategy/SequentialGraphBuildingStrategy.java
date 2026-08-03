@@ -38,7 +38,7 @@ public class SequentialGraphBuildingStrategy implements FlowGraphBuildingStrateg
 	public StateGraph buildGraph(FlowGraphBuilder.FlowGraphConfig config) throws GraphStateException {
 		validateConfig(config);
 		validateSequentialConfig(config);
-
+        /* ## 实例化【工作流】 */
 		StateGraph graph = new StateGraph(config.getName(), config.getKeyStrategyFactory());
 		Agent rootAgent = config.getRootAgent();
 
@@ -51,7 +51,7 @@ public class SequentialGraphBuildingStrategy implements FlowGraphBuildingStrateg
 		// Process sub-agents sequentially
 		Agent currentAgent = rootAgent;
 		for (Agent subAgent : config.getSubAgents()) {
-			FlowGraphBuildingStrategy.addSubAgentNode(subAgent, graph);
+			FlowGraphBuildingStrategy.addSubAgentNode(subAgent, graph); /* ## 将【子agent】封装为 【工作流节点】 */
 			graph.addEdge(currentAgent.name(), subAgent.name());
 			currentAgent = subAgent;
 		}

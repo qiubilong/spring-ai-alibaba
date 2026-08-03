@@ -49,7 +49,7 @@ import static com.alibaba.cloud.ai.graph.agent.tools.ToolContextConstants.AGENT_
 import static com.alibaba.cloud.ai.graph.agent.tools.ToolContextConstants.AGENT_STATE_FOR_UPDATE_CONTEXT_KEY;
 import static com.alibaba.cloud.ai.graph.checkpoint.BaseCheckpointSaver.THREAD_ID_DEFAULT;
 
-public class AgentToolNode implements NodeActionWithConfig {
+public class AgentToolNode implements NodeActionWithConfig {  /* 工具调用 节点  */
 	public static final String TOOL_NODE_NAME = "tool";
 	private static final Logger logger = LoggerFactory.getLogger(AgentToolNode.class);
 
@@ -57,9 +57,9 @@ public class AgentToolNode implements NodeActionWithConfig {
 
 	private boolean enableActingLog;
 
-	private List<ToolCallback> toolCallbacks;
+	private List<ToolCallback> toolCallbacks;  /* 工具列表 */
 
-	private List<ToolInterceptor> toolInterceptors = new ArrayList<>();
+	private List<ToolInterceptor> toolInterceptors = new ArrayList<>(); /* 【工具调用】拦截器 */
 
 	private ToolCallbackResolver toolCallbackResolver;
 
@@ -93,7 +93,7 @@ public class AgentToolNode implements NodeActionWithConfig {
 
 		Map<String, Object> updatedState = new HashMap<>();
 		Map<String, Object> extraStateFromToolCall = new HashMap<>();
-		if (lastMessage instanceof AssistantMessage assistantMessage) {
+		if (lastMessage instanceof AssistantMessage assistantMessage) {/* 获取最后的 ai消息 --> 也就是大模型调用返回的 */
 			// execute the tool function
 			List<ToolResponseMessage.ToolResponse> toolResponses = new ArrayList<>();
 
@@ -101,9 +101,9 @@ public class AgentToolNode implements NodeActionWithConfig {
 				logger.info("[ThreadId {}] Agent {} acting with {} tools.", config.threadId().orElse(THREAD_ID_DEFAULT), agentName, assistantMessage.getToolCalls().size());
 			}
 
-			for (AssistantMessage.ToolCall toolCall : assistantMessage.getToolCalls()) {
+			for (AssistantMessage.ToolCall toolCall : assistantMessage.getToolCalls()) { /* 需要执行工具调用 */
 				// Execute tool call with interceptor chain
-				ToolCallResponse response = executeToolCallWithInterceptors(toolCall, state, config, extraStateFromToolCall);
+				ToolCallResponse response = executeToolCallWithInterceptors(toolCall, state, config, extraStateFromToolCall); /* ## 工具调用拦截器 */
 				toolResponses.add(response.toToolResponse());
 			}
 
@@ -113,7 +113,7 @@ public class AgentToolNode implements NodeActionWithConfig {
 				logger.info("[ThreadId {}] Agent {} acting returned: {}", config.threadId().orElse(THREAD_ID_DEFAULT), agentName, toolResponseMessage);
 			}
 
-			updatedState.put("messages", toolResponseMessage);
+			updatedState.put("messages", toolResponseMessage); /* append方式更新【OverAllState全局状态】的数据 -- 更新【聊天消息】  */
 		} else if (lastMessage instanceof ToolResponseMessage toolResponseMessage) {
 			if (messages.size() < 2) {
 				throw new IllegalStateException("Cannot find AssistantMessage before ToolResponseMessage");
@@ -171,7 +171,7 @@ public class AgentToolNode implements NodeActionWithConfig {
 	/**
 	 * Execute a tool call with interceptor chain support.
 	 */
-	private ToolCallResponse executeToolCallWithInterceptors(
+	private ToolCallResponse executeToolCallWithInterceptors( /* 需要执行工具调用 */
 			AssistantMessage.ToolCall toolCall,
 			OverAllState state,
 			RunnableConfig config,
@@ -195,7 +195,7 @@ public class AgentToolNode implements NodeActionWithConfig {
 			try {
 				// FIXME, currently only FunctionToolCallback supports ToolContext.
 				if (toolCallback instanceof FunctionToolCallback<?, ?>) {
-					result = toolCallback.call(
+					result = toolCallback.call( /* 调用工具 */
 							req.getArguments(),
 							new ToolContext(Map.of(AGENT_STATE_CONTEXT_KEY, state, AGENT_CONFIG_CONTEXT_KEY, config, AGENT_STATE_FOR_UPDATE_CONTEXT_KEY, extraStateFromToolCall))
 					);
@@ -222,7 +222,7 @@ public class AgentToolNode implements NodeActionWithConfig {
 		};
 
 		// Chain interceptors if any
-		ToolCallHandler chainedHandler = InterceptorChain.chainToolInterceptors(
+		ToolCallHandler chainedHandler = InterceptorChain.chainToolInterceptors( /* 构建 【工具执行】拦截器 */
 			toolInterceptors, baseHandler);
 
 		// Execute the chained handler

@@ -58,7 +58,7 @@ import static java.util.stream.Collectors.toList;
 /**
  * The type Compiled graph.
  */
-public class CompiledGraph {
+public class CompiledGraph { /* 编译好的【工作流】 */
 
 	private static final Logger log = LoggerFactory.getLogger(CompiledGraph.class);
 
@@ -100,14 +100,14 @@ public class CompiledGraph {
 		maxIterations = compileConfig.recursionLimit();
 
 		this.stateGraph = stateGraph;
-		this.keyStrategyMap = stateGraph.getKeyStrategyFactory()
+		this.keyStrategyMap = stateGraph.getKeyStrategyFactory()/* 数据更新策略 */
 			.apply()
 			.entrySet()
 			.stream()
 			.map(e -> Map.entry(e.getKey(), e.getValue()))
 			.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-		this.processedData = ProcessedNodesEdgesAndConfig.process(stateGraph, compileConfig);
+		this.processedData = ProcessedNodesEdgesAndConfig.process(stateGraph, compileConfig); /* ## 编译【工作流节点】，包括【子agent】 */
 
 		// CHECK INTERRUPTIONS
 		for (String interruption : processedData.interruptsBefore()) {
@@ -200,7 +200,7 @@ public class CompiledGraph {
 		BaseCheckpointSaver saver = compileConfig.checkpointSaver()
 			.orElseThrow(() -> (new IllegalStateException("Missing CheckpointSaver!")));
 
-		return saver.list(config)
+		return saver.list(config) /* 根据 threadId 获取会话记忆 */
 			.stream()
 			.map(checkpoint -> StateSnapshot.of(keyStrategyMap, checkpoint, config, stateGraph.getStateFactory()))
 			.collect(toList());
@@ -467,7 +467,7 @@ public class CompiledGraph {
 	 * @return a Flux stream of NodeOutput
 	 */
 	public Flux<NodeOutput> stream(Map<String, Object> inputs, RunnableConfig config) {
-		return streamFromInitialNode(stateCreate(inputs), config); /* 从起始节点执行 状态图 */
+		return streamFromInitialNode(stateCreate(inputs), config); /* 从起始节点执行 工作流 */
 	}
 
 	/**
@@ -579,7 +579,7 @@ public class CompiledGraph {
 		return new ScheduledAgentTask(this, scheduleConfig).start();
 	}
 
-	private OverAllState stateCreate(Map<String, Object> inputs) {
+	private OverAllState stateCreate(Map<String, Object> inputs) { /* 构建【执行工作流】全局数据 */
 		// Creates a new OverAllState instance using key strategies from the graph
 		// and provided input data.
 		return OverAllStateBuilder.builder()
@@ -681,7 +681,7 @@ record ProcessedNodesEdgesAndConfig(Nodes nodes, Edges edges, Set<String> interr
 		var subgraphNodes = stateGraph.nodes.onlySubStateGraphNodes();
 
 		if (subgraphNodes.isEmpty()) {
-			return new ProcessedNodesEdgesAndConfig(stateGraph, config);
+			return new ProcessedNodesEdgesAndConfig(stateGraph, config); /* ## 无【agent工作流节点】 */
 		}
 
 		var interruptsBefore = config.interruptsBefore();
@@ -689,7 +689,7 @@ record ProcessedNodesEdgesAndConfig(Nodes nodes, Edges edges, Set<String> interr
 		var nodes = new Nodes(stateGraph.nodes.exceptSubStateGraphNodes());
 		var edges = new Edges(stateGraph.edges.elements);
 
-		for (var subgraphNode : subgraphNodes) {
+		for (var subgraphNode : subgraphNodes) { /* ## 处理【agent工作流节点】 */
 
 			var sgWorkflow = subgraphNode.subGraph();
 
@@ -775,7 +775,7 @@ record ProcessedNodesEdgesAndConfig(Nodes nodes, Edges edges, Set<String> interr
 			//
 			// Process nodes
 			//
-			processedSubGraphNodes.elements.stream().map(n -> {
+			processedSubGraphNodes.elements.stream().map(n -> { /* 收集 【子agent】工作流节点 */
 				return n.withIdUpdated(subgraphNode::formatId);
 			}).forEach(nodes.elements::add);
 		}

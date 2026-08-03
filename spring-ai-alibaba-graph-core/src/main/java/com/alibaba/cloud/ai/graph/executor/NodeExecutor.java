@@ -82,7 +82,7 @@ public class NodeExecutor extends BaseGraphExecutor {
 	 * @param resultValue the atomic reference to store the result value
 	 * @return Flux of GraphResponse with node execution result
 	 */
-	private Flux<GraphResponse<NodeOutput>> executeNode(GraphRunnerContext context,
+	private Flux<GraphResponse<NodeOutput>> executeNode(GraphRunnerContext context, /* 执行工作节点 */
 			AtomicReference<Object> resultValue) {
 		try {
 			context.setCurrentNodeId(context.getNextNodeId());
@@ -93,7 +93,7 @@ public class NodeExecutor extends BaseGraphExecutor {
 				return Flux.just(GraphResponse.error(RunnableErrors.missingNode.exception(currentNodeId)));
 			}
 
-			if (action instanceof InterruptableAction) {
+			if (action instanceof InterruptableAction) { /* ## 优先执行【中断】节点   */
 				context.getConfig().metadata(RunnableConfig.STATE_UPDATE_METADATA_KEY).ifPresent(updateFromFeedback -> {
 					if (updateFromFeedback instanceof Map<?, ?>) {
 						context.mergeIntoCurrentState((Map<String, Object>) updateFromFeedback);
@@ -102,7 +102,7 @@ public class NodeExecutor extends BaseGraphExecutor {
 					}
 				});
 				Optional<InterruptionMetadata> interruptMetadata = ((InterruptableAction) action)
-					.interrupt(currentNodeId, context.cloneState(context.getCurrentStateData()), context.getConfig());
+					.interrupt(currentNodeId, context.cloneState(context.getCurrentStateData()), context.getConfig());/* 如果是中断节点，先执行中断方法 - interrupt  */
 				if (interruptMetadata.isPresent()) {
 					resultValue.set(interruptMetadata.get());
 					return Flux.just(GraphResponse.done(interruptMetadata.get()));
@@ -111,7 +111,7 @@ public class NodeExecutor extends BaseGraphExecutor {
 
 			context.doListeners(NODE_BEFORE, null);
 
-			CompletableFuture<Map<String, Object>> future = action.apply(context.getOverallState(), /* 调用节点 */
+			CompletableFuture<Map<String, Object>> future = action.apply(context.getOverallState(), /* ##  调用【工作】节点  - apply */
 					context.getConfig());
 
 			return Mono.fromFuture(future)

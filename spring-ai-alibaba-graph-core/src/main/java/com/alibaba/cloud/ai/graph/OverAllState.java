@@ -74,7 +74,7 @@ import static java.util.Optional.ofNullable;
  * @author disaster
  * @since 1.0.0.1
  */
-public final class OverAllState implements Serializable { /* 状态图执行 - 全局状态 */
+public final class OverAllState implements Serializable { /* 工作流执行 - 全局状态 */
 	public static final Object MARK_FOR_REMOVAL = new Object();
 
 	/**

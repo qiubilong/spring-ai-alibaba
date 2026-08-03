@@ -31,7 +31,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 /**
  * Tool for editing files using string replacement.
  */
-public class EditFileTool implements BiFunction<EditFileTool.EditFileRequest, ToolContext, String> {
+public class EditFileTool implements BiFunction<EditFileTool.EditFileRequest, ToolContext, String> { /* 编辑文件 */
 
 	public static final String DESCRIPTION = """
 			Performs exact string replacements in files.
@@ -90,7 +90,7 @@ public class EditFileTool implements BiFunction<EditFileTool.EditFileRequest, To
 				int replaceIndex = content.indexOf(request.oldString);
 				if (replaceIndex != -1) {
 					newContent = content.substring(0, replaceIndex) + request.newString
-							+ content.substring(replaceIndex + request.oldString.length());
+							+ content.substring(replaceIndex + request.oldString.length()); /* 截断旧内容，拼接新的内容 */
 				}
 				else {
 					// Should not reach here as we already checked for existence

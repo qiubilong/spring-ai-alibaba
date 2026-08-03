@@ -24,8 +24,8 @@ import java.util.Map;
  */
 public class ToolCallRequest {
 
-	private final String toolName;
-	private final String arguments;
+	private final String toolName;  /* 工具名称 */
+	private final String arguments; /* 工具参数 */
 	private final String toolCallId;
 	private final Map<String, Object> context;
 

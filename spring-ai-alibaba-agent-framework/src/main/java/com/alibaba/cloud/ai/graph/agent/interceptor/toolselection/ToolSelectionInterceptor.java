@@ -51,16 +51,16 @@ import org.slf4j.LoggerFactory;
  *     .maxTools(3)
  *     .build();
  */
-public class ToolSelectionInterceptor extends ModelInterceptor {
+public class ToolSelectionInterceptor extends ModelInterceptor { /* 筛选相关的工具 */
 
 	private static final Logger log = LoggerFactory.getLogger(ToolSelectionInterceptor.class);
 
 	private static final String DEFAULT_SYSTEM_PROMPT =
 			"Your goal is to select the most relevant tools for answering the user's query.";
 
-	private final ChatModel selectionModel;
+	private final ChatModel selectionModel;  /* 大模型 */
 	private final String systemPrompt;
-	private final Integer maxTools;
+	private final Integer maxTools;         /* 最多保留工具 */
 	private final Set<String> alwaysInclude;
 	private final ObjectMapper objectMapper;
 
@@ -84,7 +84,7 @@ public class ToolSelectionInterceptor extends ModelInterceptor {
 
 		// If no tools or already within limit, skip selection
 		if (availableTools == null || availableTools.isEmpty() ||
-				(maxTools != null && availableTools.size() <= maxTools)) {
+				(maxTools != null && availableTools.size() <= maxTools)) { /* 超过多少，才需要筛选工具 */
 			return handler.call(request);
 		}
 
@@ -96,7 +96,7 @@ public class ToolSelectionInterceptor extends ModelInterceptor {
 		}
 
 		// Perform tool selection
-		Set<String> selectedToolNames = selectTools(availableTools, lastUserQuery);
+		Set<String> selectedToolNames = selectTools(availableTools, lastUserQuery); /* 筛选工具 */
 
 		log.info("Selected {} tools from {} available: {}",
 				selectedToolNames.size(), availableTools.size(), selectedToolNames);
@@ -108,7 +108,7 @@ public class ToolSelectionInterceptor extends ModelInterceptor {
 
 		// Create new request with filtered tools
 		ModelRequest filteredRequest = ModelRequest.builder(request)
-				.tools(filteredTools)
+				.tools(filteredTools) /* 覆盖 最终选择工具 */
 				.build();
 
 		return handler.call(filteredRequest);
@@ -124,7 +124,7 @@ public class ToolSelectionInterceptor extends ModelInterceptor {
 		return null;
 	}
 
-	private Set<String> selectTools(List<String> toolNames, String userQuery) {
+	private Set<String> selectTools(List<String> toolNames, String userQuery) { /* 筛选工具 */
 		try {
 			// Build tool list for prompt
 			StringBuilder toolList = new StringBuilder();
@@ -138,7 +138,7 @@ public class ToolSelectionInterceptor extends ModelInterceptor {
 					: "";
 
 			// Create selection prompt
-			List<Message> selectionMessages = List.of(
+			List<Message> selectionMessages = List.of( /* 构建 提示词 */
 					new SystemMessage(systemPrompt + maxToolsInstruction),
 					new UserMessage("Available tools:\n" + toolList +
 							"\nUser query: " + userQuery +

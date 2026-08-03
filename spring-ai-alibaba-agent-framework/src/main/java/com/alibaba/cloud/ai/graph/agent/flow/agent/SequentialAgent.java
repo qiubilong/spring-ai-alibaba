@@ -21,7 +21,7 @@ import com.alibaba.cloud.ai.graph.agent.flow.builder.FlowGraphBuilder;
 import com.alibaba.cloud.ai.graph.agent.flow.enums.FlowAgentEnum;
 import com.alibaba.cloud.ai.graph.exception.GraphStateException;
 
-public class SequentialAgent extends FlowAgent {
+public class SequentialAgent extends FlowAgent { /* 串行 agent */
 
 	protected SequentialAgent(SequentialAgentBuilder builder) throws GraphStateException {
 		super(builder.name, builder.description, builder.compileConfig, builder.subAgents);
@@ -33,7 +33,7 @@ public class SequentialAgent extends FlowAgent {
 
 	@Override
 	protected StateGraph buildSpecificGraph(FlowGraphBuilder.FlowGraphConfig config) throws GraphStateException {
-		return FlowGraphBuilder.buildGraph(FlowAgentEnum.SEQUENTIAL.getType(), config);
+		return FlowGraphBuilder.buildGraph(FlowAgentEnum.SEQUENTIAL.getType(), config); /* 构建串行 agent */
 	}
 
 	/**

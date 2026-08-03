@@ -45,7 +45,7 @@ public abstract class FlowAgent extends Agent {
 	}
 
 	@Override
-	protected StateGraph initGraph() throws GraphStateException {
+	protected StateGraph initGraph() throws GraphStateException { /* 真正实例化 agent */
 		// Use FlowGraphBuilder to construct the graph
 		FlowGraphBuilder.FlowGraphConfig config = FlowGraphBuilder.FlowGraphConfig.builder()
 			.name(this.name())
@@ -53,7 +53,7 @@ public abstract class FlowAgent extends Agent {
 			.subAgents(this.subAgents());
 
 		// Delegate to specific graph builder based on agent type
-		return buildSpecificGraph(config);
+		return buildSpecificGraph(config); /* SequentialAgent=串行 agent  */
 	}
 
 	@Override

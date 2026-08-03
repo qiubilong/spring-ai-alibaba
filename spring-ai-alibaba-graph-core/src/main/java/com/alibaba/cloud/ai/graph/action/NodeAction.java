@@ -20,7 +20,7 @@ import com.alibaba.cloud.ai.graph.OverAllState;
 import java.util.Map;
 
 @FunctionalInterface
-public interface NodeAction {
+public interface NodeAction { /* 工作流节点 */
 
 	Map<String, Object> apply(OverAllState state) throws Exception;
 

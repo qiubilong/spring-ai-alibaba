@@ -36,13 +36,13 @@ import static java.util.Optional.ofNullable;
  * methods to modify these parameters safely without permanently altering the original
  * configuration.
  */
-public final class RunnableConfig implements HasMetadata<RunnableConfig.Builder> {
+public final class RunnableConfig implements HasMetadata<RunnableConfig.Builder> { /* 执行任务参数配置 */
 
 	public static final String HUMAN_FEEDBACK_METADATA_KEY = "HUMAN_FEEDBACK";
 	public static final String STATE_UPDATE_METADATA_KEY = "STATE_UPDATE";
 	public static final String AGENT_NAME = "AGENT_NAME";
 
-	private final String threadId;
+	private final String threadId; /* 执行id */
 
 	private final String checkPointId;
 
@@ -51,7 +51,7 @@ public final class RunnableConfig implements HasMetadata<RunnableConfig.Builder>
 	private final CompiledGraph.StreamMode streamMode;
 
 	// Metadata is immutable during execution, it is used for environment information provided for a specific run.
-	private final Map<String, Object> metadata;
+	private final Map<String, Object> metadata; /* 不可变配置 - 是否流式执行【 _stream_ 】、大模型名字 */
 
 	/**
 	 * Comparing to metadata, context is mutable during execution. It passes information between nodes.
@@ -59,7 +59,7 @@ public final class RunnableConfig implements HasMetadata<RunnableConfig.Builder>
 	 */
 	private final Map<String, Object> context;
 
-	private Store store;
+	private Store store; /* 会话记忆 */
 
 	private final Map<String, Object> interruptedNodes;
 

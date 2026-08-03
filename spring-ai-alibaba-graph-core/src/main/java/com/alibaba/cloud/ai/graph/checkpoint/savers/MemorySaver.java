@@ -26,9 +26,9 @@ import java.util.stream.IntStream;
 
 import static java.lang.String.format;
 
-public class MemorySaver implements BaseCheckpointSaver {
+public class MemorySaver implements BaseCheckpointSaver {/* 会话记忆 - 执行流ID */
 
-	final Map<String, LinkedList<Checkpoint>> _checkpointsByThread = new HashMap<>();
+	final Map<String, LinkedList<Checkpoint>> _checkpointsByThread = new HashMap<>();/* 执行流ID  <-->  消息列表  */
 
 	private final ReentrantLock _lock = new ReentrantLock();
 

@@ -42,11 +42,11 @@ import java.util.concurrent.CompletableFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@HookPositions(HookPosition.AFTER_MODEL)
-public class HumanInTheLoopHook extends ModelHook implements AsyncNodeActionWithConfig, InterruptableAction {
+@HookPositions(HookPosition.AFTER_MODEL) /* 调用大模型 -之后 - 执行hook */
+public class HumanInTheLoopHook extends ModelHook implements AsyncNodeActionWithConfig, InterruptableAction { /* 需要人类反馈 - 中断节点 */
 	private static final Logger log = LoggerFactory.getLogger(HumanInTheLoopHook.class);
 
-	private Map<String, ToolConfig> approvalOn;
+	private Map<String, ToolConfig> approvalOn; /* 需要人类反馈的工具 */
 
 	private HumanInTheLoopHook(Builder builder) {
 		this.approvalOn = new HashMap<>(builder.approvalOn);
@@ -63,10 +63,10 @@ public class HumanInTheLoopHook extends ModelHook implements AsyncNodeActionWith
 
 	@Override
 	public CompletableFuture<Map<String, Object>> afterModel(OverAllState state, RunnableConfig config) {
-		Optional<Object> feedback = config.metadata(RunnableConfig.HUMAN_FEEDBACK_METADATA_KEY);
+		Optional<Object> feedback = config.metadata(RunnableConfig.HUMAN_FEEDBACK_METADATA_KEY); /* HUMAN_FEEDBACK -- 人类反馈数据 */
 		InterruptionMetadata interruptionMetadata = (InterruptionMetadata) feedback.orElse(null);
 
-		if (interruptionMetadata == null) {
+		if (interruptionMetadata == null) { /* 不需要中断反馈 */
 			log.info("No human feedback found in the runnable config metadata, no tool to execute or none needs feedback.");
 			return CompletableFuture.completedFuture(Map.of());
 		}
@@ -74,7 +74,7 @@ public class HumanInTheLoopHook extends ModelHook implements AsyncNodeActionWith
 		List<Message> messages = (List<Message>) state.value("messages").orElse(List.of());
 		Message lastMessage = messages.get(messages.size() - 1);
 
-		if (lastMessage instanceof AssistantMessage assistantMessage) {
+		if (lastMessage instanceof AssistantMessage assistantMessage) { /* 最后一个消息 */
 
 			if (!assistantMessage.hasToolCalls()) {
 				log.info("Found human feedback but last AssistantMessage has no tool calls, nothing to process for human feedback.");
@@ -95,14 +95,14 @@ public class HumanInTheLoopHook extends ModelHook implements AsyncNodeActionWith
 					ToolFeedback toolFeedback = toolFeedbackOpt.get();
 					FeedbackResult result = toolFeedback.getResult();
 
-					if (result == FeedbackResult.APPROVED) {
+					if (result == FeedbackResult.APPROVED) {      /* 通过 */
 						newToolCalls.add(toolCall);
 					}
 					else if (result == FeedbackResult.EDITED) {
 						AssistantMessage.ToolCall editedToolCall = new AssistantMessage.ToolCall(toolCall.id(), toolCall.type(), toolCall.name(), toolFeedback.getArguments());
 						newToolCalls.add(editedToolCall);
 					}
-					else if (result == FeedbackResult.REJECTED) {
+					else if (result == FeedbackResult.REJECTED) { /* 拒绝 */
 						ToolResponseMessage.ToolResponse response = new ToolResponseMessage.ToolResponse(toolCall.id(), toolCall.name(), String.format("Tool call request for %s has been rejected by human. The reason for why this tool is rejected and the suggestion for next possible tool choose is listed as below:\n %s.", toolFeedback.getName(), toolFeedback.getDescription()));
 						responses.add(response);
 					}
@@ -120,13 +120,13 @@ public class HumanInTheLoopHook extends ModelHook implements AsyncNodeActionWith
 				newMessages.add(rejectedMessage);
 			}
 
-			if (!newToolCalls.isEmpty()) {
+			if (!newToolCalls.isEmpty()) { /* 替换工具调用消息，例如需要修改工具参数 */
 				// Replace the last message with the new assistant message containing updated tool calls
 				newMessages.add(new AssistantMessage(assistantMessage.getText(), assistantMessage.getMetadata(), newToolCalls, assistantMessage.getMedia()));
 				newMessages.add(new RemoveByHash<>(assistantMessage));
 			}
 
-			updates.put("messages", newMessages);
+			updates.put("messages", newMessages); /* 更新消息 */
 			return CompletableFuture.completedFuture(updates);
 		}
 		else {
@@ -137,9 +137,9 @@ public class HumanInTheLoopHook extends ModelHook implements AsyncNodeActionWith
 	}
 
 	@Override
-	public Optional<InterruptionMetadata> interrupt(String nodeId, OverAllState state, RunnableConfig config) {
+	public Optional<InterruptionMetadata> interrupt(String nodeId, OverAllState state, RunnableConfig config) { /* 先执行中断方法 - interrupt  */
 		Optional<Object> feedback = config.metadata(RunnableConfig.HUMAN_FEEDBACK_METADATA_KEY);
-		if (feedback.isPresent()) {
+		if (feedback.isPresent()) { /* 已经得到反馈 */
 			if (!(feedback.get() instanceof InterruptionMetadata)) {
 				throw new IllegalArgumentException("Human feedback metadata must be of type InterruptionMetadata.");
 			}
@@ -151,14 +151,14 @@ public class HumanInTheLoopHook extends ModelHook implements AsyncNodeActionWith
 		}
 
 		List<Message> messages = (List<Message>) state.value("messages").orElse(List.of());
-		Message lastMessage = messages.get(messages.size() - 1);
+		Message lastMessage = messages.get(messages.size() - 1); /* 查看最后一条消息 */
 
 		if (lastMessage instanceof AssistantMessage assistantMessage) {
 			// 2. If last message is AssistantMessage
 			if (assistantMessage.hasToolCalls()) {
 				boolean needsInterruption = false;
 				InterruptionMetadata.Builder builder = InterruptionMetadata.builder(getName(), state);
-				for (AssistantMessage.ToolCall toolCall : assistantMessage.getToolCalls()) {
+				for (AssistantMessage.ToolCall toolCall : assistantMessage.getToolCalls()) { /* 返回工具调用中断 */
 					if (approvalOn.containsKey(toolCall.name())) {
 						ToolConfig toolConfig = approvalOn.get(toolCall.name());
 						String description = toolConfig.getDescription();

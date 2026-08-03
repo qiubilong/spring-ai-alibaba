@@ -16,7 +16,7 @@
 package com.alibaba.cloud.ai.graph.agent.tools;
 
 public interface ToolContextConstants {
-	String AGENT_STATE_CONTEXT_KEY = "_AGENT_STATE_";
+	String AGENT_STATE_CONTEXT_KEY = "_AGENT_STATE_";   /* OverAllState */
 	String AGENT_STATE_FOR_UPDATE_CONTEXT_KEY = "_AGENT_STATE_FOR_UPDATE_";
-	String AGENT_CONFIG_CONTEXT_KEY = "_AGENT_CONFIG_";
+	String AGENT_CONFIG_CONTEXT_KEY = "_AGENT_CONFIG_"; /* RunnableConfig */
 }

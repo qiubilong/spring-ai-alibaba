@@ -19,7 +19,7 @@ package com.alibaba.cloud.ai.graph.internal.node;
 import com.alibaba.cloud.ai.graph.StateGraph;
 import com.alibaba.cloud.ai.graph.SubGraphNode;
 
-public class SubStateGraphNode extends Node implements SubGraphNode {
+public class SubStateGraphNode extends Node implements SubGraphNode { /* agent封装为【工作流节点】 */
 
 	private final StateGraph subGraph;
 

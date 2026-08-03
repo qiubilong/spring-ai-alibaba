@@ -53,7 +53,7 @@ import static java.util.concurrent.CompletableFuture.completedFuture;
 /**
  * Represents a state graph with nodes and edges.
  */
-public class StateGraph {
+public class StateGraph { /* 工作流 */
 
 	/**
 	 * Constant representing the END of the graph.
@@ -271,7 +271,7 @@ public class StateGraph {
 			throw Errors.duplicateNodeError.exception(id);
 		}
 
-		nodes.elements.add(node);
+		nodes.elements.add(node);/* 添加【工作流节点】 */
 		return this;
 	}
 
@@ -332,7 +332,7 @@ public class StateGraph {
 
 		subGraph.validateGraph();
 
-		var node = new SubStateGraphNode(id, subGraph);
+		var node = new SubStateGraphNode(id, subGraph);/* ## 将【子agent】封装为 【工作流节点】 */
 
 		if (nodes.elements.contains(node)) {
 			throw Errors.duplicateNodeError.exception(id);
@@ -443,7 +443,7 @@ public class StateGraph {
 
 		validateGraph();
 
-		return new CompiledGraph(this, config);
+		return new CompiledGraph(this, config); /* 编译 - 工作流  */
 	}
 
 	/**
@@ -505,14 +505,14 @@ public class StateGraph {
 		/**
 		 * The collection of nodes.
 		 */
-		public final Set<Node> elements;
+		public final Set<Node> elements; /* 【工作流节点】 集合 */
 
 		/**
 		 * Instantiates a new Nodes container with the provided elements.
 		 * @param elements the elements to initialize
 		 */
 		public Nodes(Collection<Node> elements) {
-			this.elements = new LinkedHashSet<>(elements);
+			this.elements = new LinkedHashSet<>(elements);/* 顺序集合 */
 		}
 
 		/**

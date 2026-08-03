@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
  *     .addFallbackModel(claude35SonnetModel)
  *     .build();
  */
-public class ModelFallbackInterceptor extends ModelInterceptor {
+public class ModelFallbackInterceptor extends ModelInterceptor { /* 模型降级，主模型异常时，使用备用大模型 */
 
 	private static final Logger log = LoggerFactory.getLogger(ModelFallbackInterceptor.class);
 
@@ -62,7 +62,7 @@ public class ModelFallbackInterceptor extends ModelInterceptor {
 
 		// Try primary model first
 		try {
-			ModelResponse modelResponse = handler.call(request);
+			ModelResponse modelResponse = handler.call(request);  /* 调用【主】大模型 */
 			Message message = (Message) modelResponse.getMessage();
 			
 			// Check if response contains error indicator
@@ -86,7 +86,7 @@ public class ModelFallbackInterceptor extends ModelInterceptor {
 
 				// Call the fallback model directly
 				Prompt prompt = new Prompt(request.getMessages(), request.getOptions());
-				var response = fallbackModel.call(prompt);
+				var response = fallbackModel.call(prompt); /* 调用【备用】大模型 */
 
 				return ModelResponse.of(response.getResult().getOutput());
 			}

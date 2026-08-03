@@ -32,7 +32,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 /**
  * Tool for reading file contents with pagination support.
  */
-public class ReadFileTool implements BiFunction<ReadFileTool.ReadFileRequest, ToolContext, String> {
+public class ReadFileTool implements BiFunction<ReadFileTool.ReadFileRequest, ToolContext, String> { /* 读取文件 */
 
 	public static final String DESCRIPTION = """
 Reads a file from the filesystem. You can access any file directly by using this tool.

@@ -78,20 +78,20 @@ import static com.alibaba.cloud.ai.graph.action.AsyncNodeActionWithConfig.node_a
 import static java.lang.String.format;
 
 
-public class ReactAgent extends BaseAgent { /* 循环调用 智能体 */
+public class ReactAgent extends BaseAgent { /* 循环处理 智能体 */
 	Logger logger = LoggerFactory.getLogger(ReactAgent.class);
 
-	private final AgentLlmNode llmNode;    /* 大模型调用 - 节点 */
+	private final AgentLlmNode llmNode;             /* 大模型调用 - 节点 */
 
-	private final AgentToolNode toolNode; /* 工具调用 - 节点 */
+	private final AgentToolNode toolNode;           /* 工具调用 - 节点 */
 
-	private CompiledGraph compiledGraph;  /* 执行状态图 */
+	private CompiledGraph compiledGraph;             /* 执行状态图 */
 
-	private List<? extends Hook> hooks;
+	private List<? extends Hook> hooks;              /* agent、model 执行钩子 */
 
-	private List<ModelInterceptor> modelInterceptors;
+	private List<ModelInterceptor> modelInterceptors;/* 【大模型调用】拦截器 */
 
-	private List<ToolInterceptor> toolInterceptors;
+	private List<ToolInterceptor> toolInterceptors;/* 【工具调用】拦截器 */
 
 	private String instruction;
 
@@ -153,7 +153,7 @@ public class ReactAgent extends BaseAgent { /* 循环调用 智能体 */
 
 	private AssistantMessage doMessageInvoke(Object message, RunnableConfig config) throws GraphRunnerException {
 		Map<String, Object> inputs= buildMessageInput(message);/* 对话消息 */
-		Optional<OverAllState> state = doInvoke(inputs, config); /* 调用 执行状态图 */
+		Optional<OverAllState> state = doInvoke(inputs, config); /* 调用执行 工作流 */
 
 		if (StringUtils.hasLength(outputKey)) {
 			return state.flatMap(s -> s.value(outputKey))
@@ -203,16 +203,16 @@ public class ReactAgent extends BaseAgent { /* 循环调用 智能体 */
 			// set agent name to every hook node.
 			hook.setAgentName(this.name);
 		}
-        /* 创建 - 执行流程图 */
+        /* 创建 - 工作流 */
 		// Create graph
 		StateGraph graph = new StateGraph(name, buildMessagesKeyStrategyFactory(hooks)); /* keyStrategyHashMap.put("messages", new AppendStrategy()) */
 
-		graph.addNode("model", node_async(this.llmNode)); /* 大模型调用 节点 */
+		graph.addNode("model", node_async(this.llmNode)); /* 大模型调用 -  节点 */
 		graph.addNode("tool", node_async(this.toolNode)); /* 工具调用 - 节点  */
 
 		// some hooks may need tools so they can do some initialization/cleanup on start/end of agent loop
 		setupToolsForHooks(hooks, toolNode);
-
+        /* 每个hook 是一个 工作节点 */
 		// Categorize hooks by position
 		List<Hook> beforeAgentHooks = filterHooksByPosition(hooks, HookPosition.BEFORE_AGENT);
 		List<Hook> afterAgentHooks = filterHooksByPosition(hooks, HookPosition.AFTER_AGENT);
@@ -252,14 +252,14 @@ public class ReactAgent extends BaseAgent { /* 循环调用 智能体 */
 		}
 
 		// Determine node flow
-		String entryNode = determineEntryNode(beforeAgentHooks, beforeModelHooks);/* 执行状态图 - 首节点 - 默认 model */
+		String entryNode = determineEntryNode(beforeAgentHooks, beforeModelHooks);/* 工作流 - 首节点 - 默认 model */
 		String loopEntryNode = determineLoopEntryNode(beforeModelHooks);
 		String loopExitNode = determineLoopExitNode(afterModelHooks);
-		String exitNode = determineExitNode(afterAgentHooks); /* 执行状态图 - 未节点 - 默认 StateGraph.END */
+		String exitNode = determineExitNode(afterAgentHooks); /* 工作流 - 未节点 - 默认 StateGraph.END */
 
 		// Set up edges
 		graph.addEdge(START, entryNode);
-		setupHookEdges(graph, beforeAgentHooks, afterAgentHooks, beforeModelHooks, afterModelHooks, /* 添加 执行状态图 条件边 */
+		setupHookEdges(graph, beforeAgentHooks, afterAgentHooks, beforeModelHooks, afterModelHooks, /* 添加 工作流 条件边 */
 				entryNode, loopEntryNode, loopExitNode, exitNode, true, this);
 		return graph;
 	}
@@ -547,7 +547,7 @@ public class ReactAgent extends BaseAgent { /* 循环调用 智能体 */
 			String loopEntryNode,
 			String exitNode,
 			ReactAgent agentInstance) throws GraphStateException {
-        /* 执行工具 - 条件边 */  
+        /* 执行工具 - 条件边 */
 		// Model to tools routing
 		graph.addConditionalEdges(loopExitNode, edge_async(agentInstance.makeModelToTools(loopEntryNode, exitNode)), Map.of("tool", "tool", exitNode, exitNode, loopEntryNode, loopEntryNode));
 

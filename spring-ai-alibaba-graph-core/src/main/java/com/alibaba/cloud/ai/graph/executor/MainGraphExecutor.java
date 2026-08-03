@@ -54,7 +54,7 @@ public class MainGraphExecutor extends BaseGraphExecutor {
 	 * @return Flux of GraphResponse with execution result
 	 */
 	@Override
-	public Flux<GraphResponse<NodeOutput>> execute(GraphRunnerContext context, AtomicReference<Object> resultValue) {
+	public Flux<GraphResponse<NodeOutput>> execute(GraphRunnerContext context, AtomicReference<Object> resultValue) { /* 工作流执行 引擎 */
 		try {
 			if (context.shouldStop() || context.isMaxIterationsReached()) {
 				return handleCompletion(context, resultValue);
@@ -105,7 +105,7 @@ public class MainGraphExecutor extends BaseGraphExecutor {
 				}
 			}
 
-			return nodeExecutor.execute(context, resultValue);
+			return nodeExecutor.execute(context, resultValue); /* 工作流执行 入口 */
 		}
 		catch (Exception e) {
 			context.doListeners(ERROR, e);

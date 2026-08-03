@@ -53,7 +53,7 @@ public abstract class Builder {
 
 	protected ChatClient chatClient;
 
-	protected List<ToolCallback> tools;
+	protected List<ToolCallback> tools;      /* 工具 */
 
 	protected ToolCallbackResolver resolver;
 
@@ -223,7 +223,7 @@ public abstract class Builder {
 
 	protected CompileConfig buildConfig() {
 		SaverConfig saverConfig = SaverConfig.builder()
-				.register(saver)
+				.register(saver) /* 会话记忆 */
 				.build();
 		return CompileConfig.builder()
 				.saverConfig(saverConfig)

@@ -27,7 +27,7 @@ public class TransparentNode implements NodeAction {
 	}
 
 	@Override
-	public Map<String, Object> apply(OverAllState state) throws Exception {
+	public Map<String, Object> apply(OverAllState state) throws Exception { /* 透明节点 - 什么都不用做 */
 		return Map.of();
 	}
 }

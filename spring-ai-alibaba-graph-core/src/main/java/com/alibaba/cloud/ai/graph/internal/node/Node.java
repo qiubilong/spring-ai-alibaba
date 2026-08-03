@@ -36,7 +36,7 @@ import static java.lang.String.format;
  * {@link OverAllState}.
  *
  */
-public class Node {
+public class Node {  /* 工作流节点 */
 
 	public static final String PRIVATE_PREFIX = "__";
 

@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
  * agent.addInterceptor(interceptor);
  * </pre>
  */
-public class PatchToolCallsInterceptor extends ModelInterceptor {
+public class PatchToolCallsInterceptor extends ModelInterceptor {  /* 工具执行修复，     例： 工具执行被中断时，补充工具取消结果 */
 
 	private static final Logger log = LoggerFactory.getLogger(PatchToolCallsInterceptor.class);
 
@@ -132,7 +132,7 @@ public class PatchToolCallsInterceptor extends ModelInterceptor {
 						// Check if a response exists in the remaining messages
 						boolean hasResponse = existingToolResponseIds.contains(toolCallId);
 
-						if (!hasResponse) {
+						if (!hasResponse) {  /* 工具执行没有结果时，设置工具执行结果为【取消执行】 */
 							// Found a dangling tool call - create a cancellation response
 							String cancellationMsg = String.format(
 									CANCELLATION_MESSAGE_TEMPLATE,

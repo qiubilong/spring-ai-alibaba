@@ -87,7 +87,7 @@ public class InterceptorChain {
 			ToolCallHandler nextHandler = current;
 
 			// Create a wrapper that calls the interceptor's wrap method
-			current = request -> interceptor.interceptToolCall(request, nextHandler);
+			current = request -> interceptor.interceptToolCall(request, nextHandler);/* 构建 【工具执行】拦截器 */
 		}
 
 		return current;

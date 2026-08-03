@@ -50,7 +50,7 @@ import static com.alibaba.cloud.ai.graph.agent.tools.WriteTodosTool.DEFAULT_TOOL
  *     .systemPrompt("Custom guidance for using todos...")
  *     .build();
  */
-public class TodoListInterceptor extends ModelInterceptor {
+public class TodoListInterceptor extends ModelInterceptor { /* 代办列表 - 拦截器 */
 
 	private static final String DEFAULT_SYSTEM_PROMPT = """
 			## `write_todos`
@@ -75,7 +75,7 @@ public class TodoListInterceptor extends ModelInterceptor {
 	private TodoListInterceptor(Builder builder) {
 		// Create the write_todos tool with the custom description
 		this.tools = Collections.singletonList(
-				WriteTodosTool.builder().
+				WriteTodosTool.builder().         /* 【待办列表】工具 */
 						withName("write_todos")
 						.withDescription(builder.toolDescription)
 						.build()
@@ -89,7 +89,7 @@ public class TodoListInterceptor extends ModelInterceptor {
 	}
 
 	@Override
-	public List<ToolCallback> getTools() {
+	public List<ToolCallback> getTools() { /* 构建 Agent时调用 */
 		return tools;
 	}
 
@@ -165,9 +165,9 @@ public class TodoListInterceptor extends ModelInterceptor {
 	/**
 	 * Represents a single todo item.
 	 */
-	public static class Todo {
-		private String content;
-		private TodoStatus status;
+	public static class Todo {      /* 待办项 */
+		private String content;     /* 内容 */
+		private TodoStatus status; /* 状态 */
 
 		public Todo() {
 		}

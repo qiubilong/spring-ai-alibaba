@@ -99,7 +99,7 @@ public abstract class Agent {
 	public StateGraph getGraph() {
 		if (this.graph == null) {
 			try {
-				this.graph = initGraph();/* 懒初始化 执行流程图  - ReActAgent  */
+				this.graph = initGraph();/* 懒初始化 工作流  - ReActAgent  */
 			}
 			catch (GraphStateException e) {
 				throw new RuntimeException(e);
@@ -108,18 +108,18 @@ public abstract class Agent {
 		return this.graph;
 	}
 
-	public synchronized CompiledGraph getAndCompileGraph() {
+	public synchronized CompiledGraph getAndCompileGraph() {/* 懒初始化 工作流 */
 		if (compiledGraph != null) {
 			return compiledGraph;
 		}
 
-		StateGraph graph = getGraph(); /* 懒初始化 执行流程图 */
+		StateGraph graph = getGraph(); /* 实例化 工作流 */
 		try {
 			if (this.compileConfig == null) {
 				this.compiledGraph = graph.compile();
 			}
 			else {
-				this.compiledGraph = graph.compile(this.compileConfig);
+				this.compiledGraph = graph.compile(this.compileConfig); /* 编译 - 工作流  */
 			}
 		} catch (GraphStateException e) {
 			throw new RuntimeException(e);
@@ -287,7 +287,7 @@ public abstract class Agent {
 		}
 
 		Map<String, Object> inputs = new HashMap<>();
-		inputs.put("messages", messages); /* 对话历史 */
+		inputs.put("messages", messages); /* 对话历史 -->  方便【工作节点】中获取  */
 
 		UserMessage lastUserMessage = null;
 		for (int i = messages.size() - 1; i >= 0; i--) {
